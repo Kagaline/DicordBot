@@ -1,9 +1,26 @@
 import discord
+import os
+import requests
+import json
 
 intents = discord.Intents.default()
 intents.message_content = True
 
 client = discord.Client(intents=intents)
+
+def get_quote():
+    response = requests.get('https://zenquotes.io/api/random')
+    json_data = json.loads(response.text)
+    quote = json_data[0]['q'] + " -" + json_data[0]['a']
+    return(quote)
+
+
+async def reply(message):
+    # reply message
+    reply = f'({message.author.mention} called me?)'
+    
+    # send reply
+    await message.channel.send(reply) 
 
 """event handler when bot activated"""
 @client.event
@@ -34,15 +51,12 @@ async def on_message(message):
     if message.content.startswith('\\neko'):
         await message.channel.send('myao!')
 
+    if message.content.startswith('$inspire'):
+        quote = get_quote()
+        await message.channel.send(quote)
+
     if client.user in message.mentions:
         await reply(message)
-
-async def reply(message):
-    # reply message
-    reply = f'({message.author.mention} called me?)'
-    
-    # send reply
-    await message.channel.send(reply) 
 
 TOKEN = ''
 with open('token_id.txt', 'r') as token:
