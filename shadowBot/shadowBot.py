@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands, tasks
 import os
 import asyncio
-from pprint import pprint
+from typing import Union
 
 
 # intentの作成(全て許可)
@@ -16,13 +16,12 @@ shadowBot = commands.Bot(
 
 # 実験用サーバのサーバID(Guild ID)を取得⇒ギルド情報を取得
 with open('guild_id.txt', 'r') as guild_id_file:
-    GUILD_ID = int(guild_id_file.read().strip())
-guild = shadowBot.get_guild(GUILD_ID)
+    GUILD_ID: int = int(guild_id_file.read().strip())
+guild: Union[discord.Guild, None] = shadowBot.get_guild(GUILD_ID)
 
-
-@tasks.loop(minutes=30)
-async def update_member_cache():
-    
+# メンバー情報を30分ごとに更新
+@tasks.loop(minutes = 30)
+async def update_member_cache() -> None:
     global guild
     guild = shadowBot.get_guild(GUILD_ID)
     if guild is None:
@@ -32,24 +31,26 @@ async def update_member_cache():
         print(member.name)
     await guild.chunk()
 
+# ボットが起動したときの処理
 @shadowBot.event
-async def on_ready():
+async def on_ready() -> None:
     print("shadowBot starts working!")
     update_member_cache.start()
 
-async def load():
+# Cogをロードする
+async def load() -> None:
     for filename in os.listdir('./cogs'):
         if filename.endswith('.py'):
             await shadowBot.load_extension(f"cogs.{filename[:-3]}")
 
-
-async def main():
-    
+# メインの処理
+async def main() -> None:
     async with shadowBot:
         await load()
         with open('token_id.txt', 'r') as token_id:
-            TOKEN = token_id.read()
-        await shadowBot.start(TOKEN)
+            TOKEN_ID: str = token_id.read()
+        await shadowBot.start(TOKEN_ID)
+
 
 if __name__ == '__main__':
     asyncio.run(main())

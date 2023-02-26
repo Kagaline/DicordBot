@@ -2,3 +2,5 @@ discordBot
 token_id.txt
 developer_id.txt
 guild_id.txt
+.mypy_cache
+.vscode
