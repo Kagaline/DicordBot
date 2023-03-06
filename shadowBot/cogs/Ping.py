@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 import random
 from typing import Tuple
